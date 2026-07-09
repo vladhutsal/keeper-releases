@@ -1,0 +1,30 @@
+# Письма зграї: рантайм Майстерні кладе письмо файлом у письма/ (фронтматер
+# issue: N), push — і Action доставляє його коментарем у канал персони від
+# імені Майстерні (github-actions), після чого знімає з поверхні (історія —
+# git). Так письмо не потребує ні руки власника, ні його ідентичності —
+# голос Майстерні механічний (П0.1: поверхня = зріз; П4: канал = жива issue).
+name: letters
+on:
+  push:
+    branches: [main]
+    paths: ["письма/*.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: letters
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - name: доставити письма
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/letters.sh
