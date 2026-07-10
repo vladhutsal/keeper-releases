@@ -40,6 +40,13 @@ for N in $(gh issue list -R "$REPO" --state open --limit 100 \
 	-q '.[] | select(.title | startswith("knock: ")) | .number'); do
 	TITLE=$(gh issue view "$N" -R "$REPO" --json title -q .title)
 	NAME=${TITLE#knock: }
+	# «пульс» — зарезервоване ім'я тестового стуку (E5): відповідь міряє
+	# час реакції зграї, реєстр і канали не засмічуються.
+	if [ "$NAME" = "пульс" ]; then
+		gh issue comment "$N" -R "$REPO" --body "зграя чує (хмарна) — канал живий"
+		gh issue close "$N" -R "$REPO"
+		continue
+	fi
 	gh issue view "$N" -R "$REPO" --json body -q .body >/tmp/body.txt
 
 	awk '/^---ПІДПИС/{exit} {print}' /tmp/body.txt >/tmp/manifest.txt
